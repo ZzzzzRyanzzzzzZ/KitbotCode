@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -26,6 +27,7 @@ public class Drivetrain extends SubsystemBase
     public Drivetrain()
     {
         frontL.setInverted(true);
+        backL.setInverted(true);
         backL.follow(frontL);
         frontR.setInverted(false);
         backR.follow(backL);
@@ -35,17 +37,17 @@ public class Drivetrain extends SubsystemBase
     public void SetVoltage(double leftVolts, double rightVolts)
     {
     // OK to just multiply by 12 because voltage compensation is enabled
-    frontL.set(TalonSRXControlMode.PercentOutput, leftVolts * 12.0);
-    frontR.set(TalonSRXControlMode.PercentOutput, rightVolts * 12.0);
+    frontL.set(TalonSRXControlMode.PercentOutput, leftVolts);
+    frontR.set(TalonSRXControlMode.PercentOutput, rightVolts);
     }
     @Override
     public void periodic() 
     {
         
     }
-    public Command driveCommand( Drivetrain drivetrain, double rightSpeed, double leftSpeed)
+    public Command driveCommand(Supplier<Double> leftSpeed, Supplier<Double> rightSpeed)
     {
-        return Commands.run(()-> drivetrain.SetVoltage(rightSpeed, leftSpeed));
+        return Commands.run(()-> SetVoltage(leftSpeed.get(), rightSpeed.get()), this);
 
 
     }
